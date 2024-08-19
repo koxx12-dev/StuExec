@@ -1,0 +1,139 @@
+﻿<Window x:Class="StuExec.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:script="clr-namespace:StuExec.Script"
+        mc:Ignorable="d"
+        Title="Stu-Exec" Height="355" Width="800" WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent" MouseLeftButtonDown="MainWindow_OnMouseLeftButtonDown">
+    <Window.Clip>
+        <RectangleGeometry Rect="0,0,800,355" RadiusX="15" RadiusY="15" />
+    </Window.Clip>
+
+
+    <Border Style="{StaticResource BackgroundBorder}">
+        <Grid Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <!-- add tabs here -->
+                <RowDefinition Height="20" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="150" />
+            </Grid.ColumnDefinitions>
+
+            <Canvas Grid.Column="1" Grid.Row="3">
+                <Rectangle Width="100" Height="100" Canvas.Right="0" Canvas.Bottom="0">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{StaticResource Color2}" />
+                    </Rectangle.Fill>
+                    <Rectangle.OpacityMask>
+                        <ImageBrush ImageSource="{StaticResource Squiggly1}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Canvas>
+
+            <Canvas Grid.Column="0" Grid.Row="0">
+                <Rectangle Width="100" Height="100" Canvas.Top="0" Canvas.Left="0">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{StaticResource Color2}" />
+                    </Rectangle.Fill>
+                    <Rectangle.OpacityMask>
+                        <ImageBrush ImageSource="{StaticResource Squiggly2}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Canvas>
+
+            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom" Margin="15,0,0,0">
+                <Label Foreground="{StaticResource ColorBrush6}" FontFamily="{StaticResource Comfortaa}"
+                       FontWeight="Regular" FontSize="40">
+                    Stu-Exec
+                </Label>
+                <Label x:Name="StatusLabel" Foreground="{StaticResource ColorBrush6}"
+                       FontFamily="{StaticResource Comfortaa}" FontWeight="Regular" VerticalAlignment="Bottom"
+                       FontSize="14">
+                    Status: Unknown
+                </Label>
+            </StackPanel>
+
+            <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Orientation="Horizontal"
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
+                <Button Style="{StaticResource MinimizeButton}" Click="MinimizeButton_Click" Width="30" Height="30"
+                        Margin="0,0,5,0" />
+                <Button Style="{StaticResource CloseButton}" Click="CloseButton_Click" Width="30" Height="30"
+                        Margin="0,0,10,0" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="0" Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom" Margin="10">
+                <Button Style="{StaticResource InjectButton}" Margin="10,0,5,0" Height="30" Width="30"
+                        Click="InjectButton_OnClick" />
+                <Button Style="{StaticResource ExecuteButton}" Height="30" Width="30" Click="ExecuteButton_OnClick" />
+            </StackPanel>
+
+            <DockPanel Grid.Row="1" Grid.Column="0" x:Name="ScriptPanel" Margin="20,0,20,0" Visibility="Hidden">
+                <script:ScriptTabContainer
+                    x:Name="ScriptTabContainer"
+                    Width="Auto"
+                    Height="20"
+                    Background="Transparent"
+                    BorderThickness="0" />
+
+                <Button
+                    x:Name="AddScriptButton"
+                    Click="AddScriptButton_OnClick"
+                    Width="18"
+                    Height="18"
+                    Style="{StaticResource AddScriptButton}">
+
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5,5,0,0" />
+                        </Style>
+                    </Button.Resources>
+
+                    <!-- Click="AddScript_Click" -->
+                </Button>
+            </DockPanel>
+
+            <ListBox x:Name="ScriptList" Grid.Row="2" Grid.Column="1" Margin="0,0,20,0" FontSize="11"
+                     Foreground="{StaticResource ColorBrushWhite}" Background="{StaticResource ColorBrush1}"
+                     BorderBrush="{StaticResource ColorBrush2}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.Resources>
+                    <Style TargetType="ScrollBar">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                    </Style>
+
+                    <ContextMenu x:Key="ContextMenu" Foreground="{StaticResource ColorBrushWhite}" Background="{StaticResource ColorBrush1}"
+                                 BorderBrush="{StaticResource ColorBrush2}" FontSize="14">
+                        <MenuItem Click="ExecuteFile_Click" Header="Execute"
+                                  Style="{StaticResource ExecuteContextMenu}" />
+                        <MenuItem Click="LoadFileIntoCurrentEditor_Click" Header="Load file into current tab"
+                                  Style="{StaticResource LoadFileInCurrentTabContextMenu}" />
+                        <MenuItem Click="LoadFileInteoNewEditor_Click" Header="Load file into new tab"
+                                  Style="{StaticResource LoadFileInNewTabContextMenu}" />
+                    </ContextMenu>
+
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="ContextMenu" Value="{StaticResource ContextMenu}" />
+                    </Style>
+                </ListBox.Resources>
+            </ListBox>
+
+            <Border Grid.Column="0" Grid.Row="2" BorderBrush="{StaticResource ColorBrush2}" BorderThickness="1"
+                    Margin="20,0,20,0">
+                <wv2:WebView2 x:Name="ScriptEditor" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            </Border>
+        </Grid>
+    </Border>
+</Window>

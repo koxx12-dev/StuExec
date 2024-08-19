@@ -1,0 +1,618 @@
+﻿<Application x:Class="StuExec.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:script="clr-namespace:StuExec.Script"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">5</sys:Double>
+        <sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">5</sys:Double>
+
+        <BitmapImage x:Key="Squiggly1" UriSource="pack://application:,,,/Assets/test 1.png" />
+        <BitmapImage x:Key="Squiggly2" UriSource="pack://application:,,,/Assets/test 2.png" />
+
+        <BitmapImage x:Key="CloseIcon" UriSource="pack://application:,,,/Assets/ic_fluent_dismiss_24_filled.png" />
+        <BitmapImage x:Key="InjectIcon" UriSource="pack://application:,,,/Assets/ic_fluent_syringe_24_filled.png" />
+        <BitmapImage x:Key="MinimizeIcon"
+                     UriSource="pack://application:,,,/Assets/ic_fluent_arrow_minimize_24_filled.png" />
+        <BitmapImage x:Key="ExecuteIcon"
+                     UriSource="pack://application:,,,/Assets/ic_fluent_document_arrow_right_24_filled.png" />
+        <BitmapImage x:Key="LoadFileInCurrentTabIcon"
+                     UriSource="pack://application:,,,/Assets/ic_fluent_document_chevron_double_24_filled.png" />
+        <BitmapImage x:Key="LoadFileInNewTabIcon"
+                     UriSource="pack://application:,,,/Assets/ic_fluent_document_copy_24_filled.png" />
+
+        <FontFamily x:Key="Comfortaa">pack://application:,,,/Fonts/#Comfortaa</FontFamily>
+
+        <Color x:Key="Color0">#131316</Color>
+        <Color x:Key="Color1">#1c1c21</Color>
+        <Color x:Key="Color2">#26262c</Color>
+        <Color x:Key="Color3">#2f3037</Color>
+        <Color x:Key="Color4">#393a41</Color>
+        <Color x:Key="Color5">#4b4c52</Color>
+        <Color x:Key="Color6">#5b5c62</Color>
+        <Color x:Key="Color7">#6a6b70</Color>
+
+        <Color x:Key="ColorWhite">#cccccc</Color>
+
+        <Color x:Key="ColorAccent0">#26A0DA</Color>
+        <Color x:Key="ColorAccent1">#204F69</Color>
+        <Color x:Key="ColorAccent2">#1E3B4D</Color>
+
+        <SolidColorBrush x:Key="ColorBrush0" Color="{StaticResource Color0}" />
+        <SolidColorBrush x:Key="ColorBrush1" Color="{StaticResource Color1}" />
+        <SolidColorBrush x:Key="ColorBrush2" Color="{StaticResource Color2}" />
+        <SolidColorBrush x:Key="ColorBrush3" Color="{StaticResource Color3}" />
+        <SolidColorBrush x:Key="ColorBrush4" Color="{StaticResource Color4}" />
+        <SolidColorBrush x:Key="ColorBrush5" Color="{StaticResource Color5}" />
+        <SolidColorBrush x:Key="ColorBrush6" Color="{StaticResource Color6}" />
+        <SolidColorBrush x:Key="ColorBrush7" Color="{StaticResource Color7}" />
+
+        <SolidColorBrush x:Key="ColorBrushWhite" Color="{StaticResource ColorWhite}" />
+
+        <SolidColorBrush x:Key="ColorBrushAccent0" Color="{StaticResource ColorAccent0}" />
+        <SolidColorBrush x:Key="ColorBrushAccent1" Color="{StaticResource ColorAccent1}" />
+        <SolidColorBrush x:Key="ColorBrushAccent2" Color="{StaticResource ColorAccent2}" />
+
+        <Style x:Key="BackgroundBorder" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource Color0}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource Color1}" Offset="1" />
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="{StaticResource ColorBrush2}" />
+            <Setter Property="CornerRadius" Value="15" />
+        </Style>
+
+        <Style x:Key="CloseButton" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <Rectangle Width="20" Height="20">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{StaticResource Color5}" />
+                        </Rectangle.Fill>
+                        <Rectangle.OpacityMask>
+                            <ImageBrush ImageSource="{StaticResource CloseIcon}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="Border"
+                            CornerRadius="0,15,15,0"
+                            BorderThickness="2"
+                            Background="{StaticResource ColorBrush1}"
+                            BorderBrush="{StaticResource ColorBrush3}">
+                            <ContentPresenter
+                                Margin="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent2}" />
+                                <Setter TargetName="Border" Property="BorderBrush"
+                                        Value="{StaticResource ColorBrushAccent0}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent1}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Content">
+                        <Setter.Value>
+                            <Rectangle Width="20" Height="20">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{StaticResource ColorWhite}" />
+                                </Rectangle.Fill>
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{StaticResource CloseIcon}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="MinimizeButton" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <Rectangle Width="20" Height="20">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{StaticResource Color5}" />
+                        </Rectangle.Fill>
+                        <Rectangle.OpacityMask>
+                            <ImageBrush ImageSource="{StaticResource MinimizeIcon}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="Border"
+                            CornerRadius="15,0,0,15"
+                            BorderThickness="2"
+                            Background="{StaticResource ColorBrush1}"
+                            BorderBrush="{StaticResource ColorBrush3}">
+                            <ContentPresenter
+                                Margin="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent2}" />
+                                <Setter TargetName="Border" Property="BorderBrush"
+                                        Value="{StaticResource ColorBrushAccent0}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent1}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Content">
+                        <Setter.Value>
+                            <Rectangle Width="20" Height="20">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{StaticResource ColorWhite}" />
+                                </Rectangle.Fill>
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{StaticResource MinimizeIcon}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="InjectButton" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <Rectangle Width="20" Height="20">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{StaticResource Color5}" />
+                        </Rectangle.Fill>
+                        <Rectangle.OpacityMask>
+                            <ImageBrush ImageSource="{StaticResource InjectIcon}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="Border"
+                            CornerRadius="15,0,0,15"
+                            BorderThickness="2"
+                            Background="{StaticResource ColorBrush1}"
+                            BorderBrush="{StaticResource ColorBrush3}">
+                            <ContentPresenter
+                                Margin="2"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent2}" />
+                                <Setter TargetName="Border" Property="BorderBrush"
+                                        Value="{StaticResource ColorBrushAccent0}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent1}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Content">
+                        <Setter.Value>
+                            <Rectangle Width="20" Height="20">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{StaticResource ColorWhite}" />
+                                </Rectangle.Fill>
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{StaticResource InjectIcon}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ExecuteButton" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <Rectangle Width="20" Height="20">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{StaticResource Color5}" />
+                        </Rectangle.Fill>
+                        <Rectangle.OpacityMask>
+                            <ImageBrush ImageSource="{StaticResource ExecuteIcon}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="Border"
+                            CornerRadius="0,15,15,0"
+                            BorderThickness="2"
+                            Background="{StaticResource ColorBrush1}"
+                            BorderBrush="{StaticResource ColorBrush3}">
+                            <ContentPresenter
+                                Margin="2"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent2}" />
+                                <Setter TargetName="Border" Property="BorderBrush"
+                                        Value="{StaticResource ColorBrushAccent0}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent1}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Content">
+                        <Setter.Value>
+                            <Rectangle Width="20" Height="20">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{StaticResource ColorWhite}" />
+                                </Rectangle.Fill>
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{StaticResource ExecuteIcon}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ExecuteContextMenu" TargetType="MenuItem">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Icon">
+                        <Setter.Value>
+                            <Rectangle Width="16" Height="16">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{StaticResource ColorWhite}" />
+                                </Rectangle.Fill>
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{StaticResource ExecuteIcon}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+            <Setter Property="Icon">
+                <Setter.Value>
+                    <Rectangle Width="16" Height="16">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{StaticResource Color3}" />
+                        </Rectangle.Fill>
+                        <Rectangle.OpacityMask>
+                            <ImageBrush ImageSource="{StaticResource ExecuteIcon}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="LoadFileInCurrentTabContextMenu" TargetType="MenuItem">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Icon">
+                        <Setter.Value>
+                            <Rectangle Width="16" Height="16">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{StaticResource ColorWhite}" />
+                                </Rectangle.Fill>
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{StaticResource LoadFileInCurrentTabIcon}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+            <Setter Property="Icon">
+                <Setter.Value>
+                    <Rectangle Width="16" Height="16">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{StaticResource Color3}" />
+                        </Rectangle.Fill>
+                        <Rectangle.OpacityMask>
+                            <ImageBrush ImageSource="{StaticResource LoadFileInCurrentTabIcon}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="LoadFileInNewTabContextMenu" TargetType="MenuItem">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Icon">
+                        <Setter.Value>
+                            <Rectangle Width="16" Height="16">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{StaticResource ColorWhite}" />
+                                </Rectangle.Fill>
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{StaticResource LoadFileInNewTabIcon}" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+            <Setter Property="Icon">
+                <Setter.Value>
+                    <Rectangle Width="16" Height="16">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{StaticResource Color3}" />
+                        </Rectangle.Fill>
+                        <Rectangle.OpacityMask>
+                            <ImageBrush ImageSource="{StaticResource LoadFileInNewTabIcon}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="{x:Type ContextMenu}" TargetType="{x:Type ContextMenu}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ContextMenu}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1">
+                            <StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type RepeatButton}">
+            <Setter Property="Visibility" Value="Collapsed" />
+        </Style>
+
+        <Style TargetType="{x:Type ScrollViewer}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.ColumnSpan="2" Grid.RowSpan="2">
+                                <Border.BorderBrush>
+                                    <SolidColorBrush Color="{DynamicResource BorderMediumColor}" />
+                                </Border.BorderBrush>
+                                <ScrollContentPresenter CanContentScroll="{TemplateBinding CanContentScroll}" />
+                            </Border>
+
+                            <ScrollBar Grid.Row="0" x:Name="PART_VerticalScrollBar"
+                                       Grid.Column="1"
+                                       Background="Transparent"
+                                       Value="{TemplateBinding VerticalOffset}"
+                                       Maximum="{TemplateBinding ScrollableHeight}"
+                                       ViewportSize="{TemplateBinding ViewportHeight}"
+                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                       BorderThickness="0" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AddScriptButton" TargetType="Button">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="Background" Value="{StaticResource ColorBrush1}" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="buttonBorder" Background="{TemplateBinding Background}"
+                                BorderBrush="{StaticResource ColorBrush2}" BorderThickness="1,1,1,0">
+                            <TextBlock
+                                x:Name="TextBlock"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="5"
+                                Foreground="{StaticResource ColorBrushWhite}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Text="&#xE109;" />
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="buttonBorder" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent0}" />
+                                <Setter TargetName="TextBlock" Property="Foreground"
+                                        Value="{StaticResource ColorBrush0}" />
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="buttonBorder" Property="Background"
+                                        Value="{StaticResource ColorBrushAccent1}" />
+                                <Setter TargetName="TextBlock" Property="Foreground"
+                                        Value="{StaticResource ColorBrushWhite}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="{x:Type script:ScriptTabContainer}" TargetType="{x:Type script:ScriptTabContainer}">
+            <Style.Resources>
+                <Style TargetType="{x:Type script:ScriptTab}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type script:ScriptTab}">
+                                <Border
+                                    x:Name="Border"
+                                    Width="65"
+                                    Height="30"
+                                    HorizontalAlignment="Left"
+                                    Background="{StaticResource ColorBrush1}"
+                                    BorderBrush="{StaticResource ColorBrush2}"
+                                    BorderThickness="1,1,1,0"
+                                    CornerRadius="5, 5, 0, 0">
+
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="50" />
+                                            <ColumnDefinition Width="10" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Content="{TemplateBinding Header}"
+                                            FontSize="11"
+                                            FontFamily="{StaticResource Comfortaa}"
+                                            Foreground="White" />
+
+                                        <Button
+                                            x:Name="CloseButton"
+                                            Grid.Column="1"
+                                            Width="10"
+                                            Height="10"
+                                            Background="{StaticResource ColorBrush3}"
+                                            BorderThickness="0">
+
+                                            <Button.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="5" />
+                                                </Style>
+                                            </Button.Resources>
+
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="{x:Type Button}">
+                                                    <Border x:Name="ButtonBorder"
+                                                            Background="{TemplateBinding Background}">
+                                                        <TextBlock
+                                                            x:Name="TextBlock"
+                                                            FontFamily="Segoe MDL2 Assets"
+                                                            FontSize="5"
+                                                            Foreground="{StaticResource ColorBrushWhite}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Text="&#xE106;" />
+                                                    </Border>
+
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="ButtonBorder" Property="Background"
+                                                                    Value="{StaticResource ColorBrushAccent0}" />
+                                                            <Setter TargetName="TextBlock" Property="Foreground"
+                                                                    Value="{StaticResource ColorBrush0}" />
+                                                        </Trigger>
+
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="ButtonBorder" Property="Background"
+                                                                    Value="{StaticResource ColorBrushAccent1}" />
+                                                            <Setter TargetName="TextBlock" Property="Foreground"
+                                                                    Value="{StaticResource ColorBrushWhite}" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background"
+                                                Value="{StaticResource ColorBrushAccent2}" />
+                                        <Setter TargetName="Border" Property="BorderBrush"
+                                                Value="{StaticResource ColorBrushAccent1}" />
+                                        <Setter TargetName="CloseButton" Property="Background"
+                                                Value="{StaticResource ColorBrushAccent1}" />
+                                    </Trigger>
+
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="False" />
+                                            <Condition Property="IsMouseOver" Value="True" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="Border" Property="Background"
+                                                Value="{StaticResource ColorBrush3}" />
+                                        <Setter TargetName="Border" Property="BorderBrush"
+                                                Value="{StaticResource ColorBrush4}" />
+                                        <Setter TargetName="CloseButton" Property="Background"
+                                                Value="{StaticResource ColorBrush5}" />
+                                    </MultiTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Style.Resources>
+        </Style>
+    </Application.Resources>
+</Application>

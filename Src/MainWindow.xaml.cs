@@ -18,6 +18,7 @@ public partial class MainWindow
     private DispatcherTimer? _pipeTimer;
     private NamedPipeClientStream? _pipeClient;
     private StreamWriter? _pipeWriter;
+    private int _lastProcessPid = -1;
 
     public MainWindow()
     {
@@ -212,6 +213,16 @@ public partial class MainWindow
         _pipeTimer.Tick += (_, _) =>
         {
             if (_pipeClient is { IsConnected: true })
+            {
+                if (_lastProcessPid != -1 && Process.GetProcesses().All(p => p.Id != _lastProcessPid))
+                {
+                    _pipeWriter = null;
+                    _pipeClient?.Dispose();
+                    _pipeClient = null;
+                }
+            }
+
+            if (_pipeClient is { IsConnected: true })
                 StatusLabel.Content = "Status: Connected";
             else if (Process.GetProcessesByName("RobloxStudioBeta").Length > 0)
                 StatusLabel.Content = "Status: Disconnected";
@@ -220,8 +231,6 @@ public partial class MainWindow
         };
 
         _pipeTimer.Start();
-
-        if (DoesPipeExist()) ConnectToPipe(100);
     }
 
     private void OnScriptList_Deleted(object sender, FileSystemEventArgs e)
@@ -260,6 +269,17 @@ public partial class MainWindow
         var robloxStudioProcesses = Process.GetProcessesByName("RobloxStudioBeta");
         var rbxStuDll = Path.Combine(Environment.CurrentDirectory, App.RbxStuDll);
 
+        if (DoesPipeExist() && _pipeClient is not { IsConnected: true })
+        {
+            var processWithModule = robloxStudioProcesses.FirstOrDefault(p => p.Modules.Cast<ProcessModule>().Any(m => m.ModuleName == App.RbxStuDll));
+
+            if (processWithModule == null) return;
+            
+            _lastProcessPid = processWithModule.Id;
+            ConnectToPipe(100);
+            return;
+        }
+
         if (!File.Exists(rbxStuDll))
         {
             MessageBox.Show(
@@ -281,6 +301,8 @@ public partial class MainWindow
         {
             Injector.Inject(process.Id.ToString(), rbxStuDll);
             ConnectToPipe();
+            
+            _lastProcessPid = process.Id;
         }
         catch (Exception e)
         {
@@ -324,8 +346,13 @@ public partial class MainWindow
         }
         catch (Exception e)
         {
-            _pipeWriter?.Dispose();
-            _pipeClient?.Dispose();
+            if (_pipeClient is { IsConnected: false })
+            {
+                _pipeWriter = null;
+                _pipeClient?.Dispose();
+                _pipeClient = null;
+                return;
+            }
 
             MessageBox.Show(e.Message);
         }
@@ -349,12 +376,6 @@ public partial class MainWindow
 
     private void InjectButton_OnClick(object sender, RoutedEventArgs e)
     {
-        if (DoesPipeExist())
-        {
-            MessageBox.Show("Pipe is already connected.");
-            return;
-        }
-
         new Thread(InjectAndOpenPipe).Start();
     }
 

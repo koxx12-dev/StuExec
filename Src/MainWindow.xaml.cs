@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.CodeDom;
+using System.CodeDom.Compiler;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
@@ -31,8 +33,10 @@ public partial class MainWindow
     private void InitializeScriptList()
     {
         var scriptFolder = @$"{Environment.CurrentDirectory}\scripts";
+        var autoExecFolder = @$"{Environment.CurrentDirectory}\autoexec";
 
         if (!Directory.Exists(scriptFolder)) Directory.CreateDirectory(scriptFolder);
+        if (!Directory.Exists(autoExecFolder)) Directory.CreateDirectory(autoExecFolder);
 
         var watcher = new FileSystemWatcher();
         watcher.Path = scriptFolder;
@@ -61,23 +65,13 @@ public partial class MainWindow
         var storage = ScriptTabStorage.LoadXml();
 
         if (storage == null || storage.Tabs.Count == 0)
-        {
             ScriptTabContainer.AddMemoryScript();
-        }
         else
-        {
             foreach (var tab in storage.Tabs)
-            {
                 if (tab.Type == ScriptTabStorage.ScriptTabType.File)
-                {
                     ScriptTabContainer.AddFileScript(tab.Data);
-                }
                 else
-                {
                     ScriptTabContainer.AddMemoryScript(tab.Data);
-                }
-            }
-        }
 
         ScriptEditor.Source = new Uri(@$"{AppDomain.CurrentDomain.BaseDirectory}\Monaco\index.html");
 
@@ -93,20 +87,18 @@ public partial class MainWindow
                 switch (message)
                 {
                     case "Save":
-                        
+
                         if (currentTab.FilePath == null) goto case "SaveAs";
-                        
-                        {
-                            var script = await ScriptEditor.ExecuteScriptAsync("getText()");
-                            if (script == null) return;
 
-                            script = script.Substring(1, script.Length - 2);
-                            script = Regex.Unescape(script);
+                    {
+                        var script = await GetEditorScript();
+                        if (script == null) return;
 
-                            _ = File.WriteAllTextAsync(currentTab.FilePath, script);
 
-                            break;
-                        }
+                        _ = File.WriteAllTextAsync(currentTab.FilePath, script);
+
+                        break;
+                    }
                     case "SaveAs":
                         var dialog = new Microsoft.Win32.SaveFileDialog
                         {
@@ -120,11 +112,8 @@ public partial class MainWindow
 
                         if (dialog.FileName != "")
                         {
-                            var script = await ScriptEditor.ExecuteScriptAsync("getText()");
+                            var script = await GetEditorScript();
                             if (script == null) return;
-
-                            script = script.Substring(1, script.Length - 2);
-                            script = Regex.Unescape(script);
 
                             _ = File.WriteAllTextAsync(dialog.FileName, script);
 
@@ -155,12 +144,9 @@ public partial class MainWindow
 
             if (tab.FilePath != null)
             {
-                var script = await ScriptEditor.ExecuteScriptAsync("getText()");
+                var script = await GetEditorScript();
 
                 if (script == null) return;
-
-                script = script.Substring(1, script.Length - 2);
-                script = Regex.Unescape(script);
 
                 _ = File.WriteAllTextAsync(tab.FilePath, script);
             }
@@ -176,12 +162,9 @@ public partial class MainWindow
 
             if (lastTab != null)
             {
-                var script = await ScriptEditor.ExecuteScriptAsync("getText()");
+                var script = await GetEditorScript();
 
                 if (script == null) return;
-
-                script = script.Substring(1, script.Length - 2);
-                script = Regex.Unescape(script);
 
                 if (lastTab.FilePath != null)
                     _ = File.WriteAllTextAsync(lastTab.FilePath, script);
@@ -190,16 +173,16 @@ public partial class MainWindow
             }
 
             if (currentTab == null) return;
-            
-                if (currentTab.FilePath != null)
-                {
-                    var script = await File.ReadAllTextAsync(currentTab.FilePath);
-                    _ = ScriptEditor.ExecuteScriptAsync($"setText('{script}')");
-                }
-                else
-                {
-                    _ = ScriptEditor.ExecuteScriptAsync($"setText('{currentTab.ScriptText}')");
-                }
+
+            if (currentTab.FilePath != null)
+            {
+                var script = await File.ReadAllTextAsync(currentTab.FilePath);
+                SetEditorScript(script);
+            }
+            else
+            {
+                SetEditorScript(currentTab.ScriptText!);
+            }
         };
     }
 
@@ -213,14 +196,12 @@ public partial class MainWindow
         _pipeTimer.Tick += (_, _) =>
         {
             if (_pipeClient is { IsConnected: true })
-            {
                 if (_lastProcessPid != -1 && Process.GetProcesses().All(p => p.Id != _lastProcessPid))
                 {
                     _pipeWriter = null;
                     _pipeClient?.Dispose();
                     _pipeClient = null;
                 }
-            }
 
             if (_pipeClient is { IsConnected: true })
                 StatusLabel.Content = "Status: Connected";
@@ -271,10 +252,11 @@ public partial class MainWindow
 
         if (DoesPipeExist() && _pipeClient is not { IsConnected: true })
         {
-            var processWithModule = robloxStudioProcesses.FirstOrDefault(p => p.Modules.Cast<ProcessModule>().Any(m => m.ModuleName == App.RbxStuDll));
+            var processWithModule = robloxStudioProcesses.FirstOrDefault(p =>
+                p.Modules.Cast<ProcessModule>().Any(m => m.ModuleName == App.RbxStuDll));
 
             if (processWithModule == null) return;
-            
+
             _lastProcessPid = processWithModule.Id;
             ConnectToPipe(100);
             return;
@@ -285,7 +267,7 @@ public partial class MainWindow
             MessageBox.Show(
                 $"Failed to find \"{App.RbxStuDll}\".\n" +
                 "Please make sure it's in the same directory as the executable."
-                );
+            );
             return;
         }
 
@@ -301,7 +283,7 @@ public partial class MainWindow
         {
             Injector.Inject(process.Id.ToString(), rbxStuDll);
             ConnectToPipe();
-            
+
             _lastProcessPid = process.Id;
         }
         catch (Exception e)
@@ -322,6 +304,19 @@ public partial class MainWindow
         {
             _pipeClient.Connect(timeout);
             _pipeWriter = new StreamWriter(_pipeClient, System.Text.Encoding.Default, 1024 * 1024 /* 1MiB */);
+            
+            var autoExecFolder = @$"{Environment.CurrentDirectory}\autoexec";
+            if (!Directory.Exists(autoExecFolder)) Directory.CreateDirectory(autoExecFolder);
+            
+            var files = Directory.GetFiles(autoExecFolder, "*.*", SearchOption.TopDirectoryOnly)
+                .Where(f => f.EndsWith(".lua") || f.EndsWith(".luau") || f.EndsWith(".txt"))
+                .ToArray();
+
+            foreach (var file in files)
+            {
+                var script = File.ReadAllText(file);
+                SendScriptToPipe(script);
+            }
         }
         catch (Exception e)
         {
@@ -381,15 +376,13 @@ public partial class MainWindow
 
     private async void ExecuteButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var script = await ScriptEditor.ExecuteScriptAsync("getText()");
+        var script = await GetEditorScript();
 
         if (script == null) return;
 
-        script = script.Substring(1, script.Length - 2);
-        script = Regex.Unescape(script);
-
         SendScriptToPipe(script);
     }
+
     private void ExecuteFile_Click(object sender, RoutedEventArgs e)
     {
         var scriptFolder = @$"{Environment.CurrentDirectory}\scripts";
@@ -422,8 +415,8 @@ public partial class MainWindow
         if (!File.Exists(scriptPath)) return;
 
         var script = File.ReadAllText(scriptPath);
-
-        ScriptEditor.ExecuteScriptAsync($"setText('{script}')");
+        
+        SetEditorScript(script);
     }
 
     private void LoadFileInteoNewEditor_Click(object sender, RoutedEventArgs e)
@@ -460,12 +453,9 @@ public partial class MainWindow
 
         if (currentTab != null)
         {
-            var script = await ScriptEditor.ExecuteScriptAsync("getText()");
+            var script = await GetEditorScript();
 
             if (script == null) return;
-
-            script = script.Substring(1, script.Length - 2);
-            script = Regex.Unescape(script);
 
             if (currentTab.FilePath != null)
                 _ = File.WriteAllTextAsync(currentTab.FilePath, script);
@@ -489,5 +479,36 @@ public partial class MainWindow
         ScriptTabStorage.SaveXml(storage);
 
         Close();
+    }
+    
+    //https://stackoverflow.com/questions/323640/can-i-convert-a-c-sharp-string-value-to-an-escaped-string-literal#324812 -- no point in adding a new library for one function
+    private static string ToLiteral(string input)
+    {
+        using (var writer = new StringWriter())
+        {
+            using (var provider = CodeDomProvider.CreateProvider("CSharp"))
+            {
+                provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, null);
+                return writer.ToString();
+            }
+        }
+    }
+
+    private async Task<string?> GetEditorScript()
+    {
+        var script = await ScriptEditor.ExecuteScriptAsync("getText()");
+
+        if (script == null) return null;
+
+        script = script.Substring(1, script.Length - 2);
+        script = Regex.Unescape(script);
+
+        return script;
+    }
+
+    private async void SetEditorScript(string script)
+    {
+        script = ToLiteral(script);
+        await ScriptEditor.ExecuteScriptAsync($"setText({script})");
     }
 }

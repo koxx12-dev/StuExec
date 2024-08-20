@@ -114,7 +114,8 @@
                         <Setter Property="BorderBrush" Value="Transparent" />
                     </Style>
 
-                    <ContextMenu x:Key="ContextMenu" Foreground="{StaticResource ColorBrushWhite}" Background="{StaticResource ColorBrush1}"
+                    <ContextMenu x:Key="ContextMenu" Foreground="{StaticResource ColorBrushWhite}"
+                                 Background="{StaticResource ColorBrush1}"
                                  BorderBrush="{StaticResource ColorBrush2}" FontSize="14">
                         <MenuItem Click="ExecuteFile_Click" Header="Execute"
                                   Style="{StaticResource ExecuteContextMenu}" />

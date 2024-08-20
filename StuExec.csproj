@@ -2,6 +2,7 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0-windows</TargetFramework>
+        <Version>1.1.0</Version>
         <RootNamespace>StuExec</RootNamespace>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -16,6 +17,8 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2730-prerelease" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Semver" Version="2.3.0" />
       <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
     </ItemGroup>
 

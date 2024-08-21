@@ -1,5 +1,8 @@
 ﻿# Stu-Exec
-A Gui for roblox studio execution dll [RbxStu](https://github.com/RbxStu/RbxStu-V2)<br/>
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/koxx12-dev/StuExec/total?style=flat-square)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/koxx12-dev/StuExec/latest/total?style=flat-square)
+
+A Gui for roblox studio execution dll [RbxStu](https://github.com/RbxStu/RbxStu-V2)\
 This codebase is a mess since it's my first wpf project, don't look at it if you don't want to get a headache.<br/>
 If you find any bugs, please report them in the issues tab.
 
@@ -12,6 +15,9 @@ If you don't trust the release, you can compile the source code yourself. (unles
 - Tabs (Tabs are saved on close)
 - Monaco Code Editor (Basic Autocomplete, Syntax Highlighting)
 - Script Folder (Save/Load Scripts)
+- AutoExec Folder (Automatically executes scripts on pipe connection)
+- RbxStu Auto-Update (Checks for updates on startup)
+- StuExec Update Notification (Checks for updates on startup)
 
 ## Disclaimer
 This tool is only provided for game developers to test their games. I am not responsible for any misuse of this tool.

@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Windows;
 using Newtonsoft.Json;
 using Semver;
@@ -63,9 +64,14 @@ public partial class App
         if (latestRelease is null) return;
         
         var version = latestRelease.TagName;
-        var downloadUrl = latestRelease.Assets[0].BrowserDownloadUrl;
         
-        if (Settings.UpdateSettings.RbxStuAutoUpdateLastTag == version) return;
+        var downloadAsset = latestRelease.Assets.FirstOrDefault(asset => asset.Name == RbxStuDll) ??
+                           latestRelease.Assets.FirstOrDefault(asset => asset.Name == "Release.zip");
+        
+        var isZip = downloadAsset?.Name.EndsWith(".zip") ?? false;
+        var downloadUrl = downloadAsset?.BrowserDownloadUrl;
+        
+        if (Settings.UpdateSettings.RbxStuAutoUpdateLastTag == version || downloadUrl is null) return;
         
         var result = MessageBox.Show(
             $"A new version of RbxStu is available.\n" +
@@ -80,25 +86,36 @@ public partial class App
         
         try
         {
-            var zipResponse = await GenericWebClient.GetAsync(downloadUrl);
+            var downloadResponse = await GenericWebClient.GetAsync(downloadUrl);
 
-            if (!zipResponse.IsSuccessStatusCode) throw new Exception("Failed to download the zip file.");
+            if (!downloadResponse.IsSuccessStatusCode) throw new Exception("Failed to download the zip file.");
 
-            var zipStream = await zipResponse.Content.ReadAsStreamAsync();
-
-            using var archive = new ZipArchive(zipStream);
-
-            var entry = archive.GetEntry(RbxStuDll);
-
-            if (entry is null) throw new Exception("Failed to find RbxStu dll in the zip file.");
-
-            var entryStream = entry.Open();
-
+            var downloadStream = await downloadResponse.Content.ReadAsStreamAsync();
+            
             await using var fileStream = new FileStream($"{Environment.CurrentDirectory}/{RbxStuDll}", FileMode.Create,
                 FileAccess.Write);
 
-            await entryStream.CopyToAsync(fileStream);
+            if (isZip)
+            {
+                using var archive = new ZipArchive(downloadStream);
 
+                var entry = archive.GetEntry(RbxStuDll);
+
+                if (entry is null) throw new Exception("Failed to find RbxStu dll in the zip file.");
+                
+                var entryStream = entry.Open();
+                
+                //yea this is pretty jank but if I used CopyToAsync in another place it would throw an exception
+                await entryStream.CopyToAsync(fileStream);
+            } else
+            {
+                await downloadStream.CopyToAsync(fileStream);
+            }
+            
+            if (fileStream.Length == 0) throw new Exception("Failed to write to the file stream.");
+            
+            await fileStream.FlushAsync();
+            
             Settings.UpdateSettings.RbxStuAutoUpdateLastTag = version;
 
             MessageBox.Show("RbxStu has been updated successfully.", "Stu-Exec - Update Complete",

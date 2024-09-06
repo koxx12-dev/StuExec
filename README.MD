@@ -1,4 +1,8 @@
 ﻿# Stu-Exec
+
+# ARCHIVAL NOTICE
+## Due to rbxstu moving to a applicaton based model this repository is now archived, any future changes will happen in private
+
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/koxx12-dev/StuExec/total?style=flat-square)
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/koxx12-dev/StuExec/latest/total?style=flat-square)
 
